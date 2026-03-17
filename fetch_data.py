@@ -101,7 +101,15 @@ def transform(raw_cash, raw_fao_csv):
         "fii_pcr": 0,
         "fii_sentiment": "Neutral"
     }
-    
+
+# Isse Nifty aur VIX ka data Python khud fetch karke JSON mein dal dega
+def get_market_data():
+    try:
+        # Dummy values for now, but script will update these
+        return {"nifty": "24,500.25", "vix": "15.40"}
+    except:
+        return {"nifty": "Loading...", "vix": "Loading..."}
+  
     # 1. Parse Cash Data (Buying/Selling)
     for row in raw_cash:
         cat = (row.get("category") or "").upper()
