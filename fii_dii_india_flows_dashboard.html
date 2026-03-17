@@ -211,7 +211,7 @@ tr:last-child td { border-bottom: none; }
   <header>
     <div>
       <h1 class="h-title">FII & DII Data</h1>
-	<div class="h-sub">Institutional Money Matrix <span style="color:var(--t4)">|</span> by <a href="https://wa.me/918082162500" target="_blank" style="color:var(--blue); text-decoration:none;">RATHOD TRADER</a></div>
+      <div class="h-sub">Institutional Money Matrix <span style="color:var(--t4)">|</span> by <span style="color:var(--blue);">RATHOD TRADER</span></div>
     </div>
     <div class="h-right">
       <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;">
@@ -1276,6 +1276,7 @@ window.addEventListener('DOMContentLoaded', () => {
   renderDashboard();
   initCharts();
   fetchLiveNSE();
+  fetchNiftyVIX();   // ✅ Nifty/VIX fetch call added
   startCountdown();
 });
 
@@ -1442,8 +1443,7 @@ async function fetchNiftyVIX() {
     if (tk) tk.innerText = 'Yahoo Finance temporarily unavailable';
   }
   
-  // Refresh every 5 minutes
-
+  // Refresh every 3 minutes
   setTimeout(fetchNiftyVIX, 3 * 60 * 1000);
 }
 
