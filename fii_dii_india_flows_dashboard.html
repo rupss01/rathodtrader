@@ -186,11 +186,11 @@ td { padding: 14px 16px; font-size: 13px; font-weight: 600; border-bottom: 1px s
 </div>
 
 <script>
+/* ── SNAPSHOT & BRANDING FIX ── */
 async function exportDOM(element, namePrefix) {
   try {
-    // Buttons ko capture se pehle chhupa dete hain
     const btns = element.querySelectorAll('button');
-    btns.forEach(b => b.style.opacity = '0');
+    btns.forEach(b => b.style.opacity = '0'); // Snapshot mein buttons nahi dikhenge
     
     const watermark = document.createElement('div');
     watermark.style.cssText = "position:absolute; bottom:12px; right:20px; font-size:12px; font-weight:800; color:rgba(255,255,255,0.4); text-transform:uppercase; z-index:9999;";
@@ -206,39 +206,36 @@ async function exportDOM(element, namePrefix) {
         useCORS: true 
     });
 
-    // FILE NAME FIX: Yahan 'mr_chartist' hatakar 'RATHOD_TRADER' kar diya hai
     const link = document.createElement('a');
+    // FILE NAME FIX: Yahan se 'mr_chartist' hamesha ke liye delete
     link.download = `RATHOD_TRADER_${namePrefix}_${new Date().toISOString().split('T')[0]}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
 
-    // Cleanup
     watermark.remove();
     btns.forEach(b => b.style.opacity = '1');
-  } catch (err) { 
-    console.error("Export Error:", err); 
-  }
-}
-function switchMainTab(id) {
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  event.target.classList.add('active'); document.getElementById(id).classList.add('active');
+  } catch (err) { console.error("Export Error:", err); }
 }
 
-const dailyData = [
-  { d:"16-Mar-2026", fb:10900, fs:20266, fn:-9366, db:25150, ds:12557, dn:12593, fii_pcr: 0.85, fii_sentiment: "Neutral ⚖️" }
-];
-
-function renderDashboard() {
-  const latest = dailyData[0];
-  document.getElementById('lFii').innerText = `₹${latest.fn.toLocaleString()} Cr`;
-  document.getElementById('lDii').innerText = `₹${latest.dn.toLocaleString()} Cr`;
-  document.getElementById('lDate').innerText = latest.d;
-  document.getElementById('fiiPcrVal').innerText = latest.fii_pcr || "0.00";
-  document.getElementById('fiiSentimentVal').innerText = latest.fii_sentiment || "Neutral ⚖️";
+/* ── NIFTY & VIX LOADING FIX (Python Data Sync) ── */
+async function injectLiveRow(d) {
+  const sPill = document.getElementById('sPill');
+  const sTxt  = document.getElementById('sTxt');
   
-  const tb = document.getElementById('tbDaily');
-  tb.innerHTML = dailyData.map(d => `<tr><td>${d.d}</td><td class="${d.fn>0?'t-green':'t-red'}">${d.fn}</td><td class="t-green">${d.dn}</td><td>${d.fn+d.dn}</td></tr>`).join('');
+  // Data update logic
+  if (dailyData[0].d !== d.date) {
+    dailyData.unshift({ d: d.date, fb: d.fii_buy, fs: d.fii_sell, fn: d.fii_net, db: d.dii_buy, ds: d.dii_sell, dn: d.dii_net });
+  }
+
+  // NIFTY & VIX FIX: Agar Yahoo fail ho, toh Python ka data dikhao
+  if(d.nifty_live) {
+      document.getElementById('niftyPrice').innerText = d.nifty_live.price || "—";
+      document.getElementById('niftyChange').innerText = d.nifty_live.change || "Syncing...";
+      document.getElementById('vixPrice').innerText = d.vix_live.price || "—";
+      document.getElementById('vixChange').innerText = d.vix_live.change || "Syncing...";
+  }
+
+  renderDashboard();
 }
 
 function toggleTheme() {
