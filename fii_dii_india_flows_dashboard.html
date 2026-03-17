@@ -188,32 +188,37 @@ td { padding: 14px 16px; font-size: 13px; font-weight: 600; border-bottom: 1px s
 <script>
 async function exportDOM(element, namePrefix) {
   try {
-    const clone = element.cloneNode(true);
+    // Buttons ko capture se pehle chhupa dete hain
+    const btns = element.querySelectorAll('button');
+    btns.forEach(b => b.style.opacity = '0');
+    
     const watermark = document.createElement('div');
-    watermark.style.position = 'absolute';
-    watermark.style.bottom = '12px';
-    watermark.style.right = '20px';
-    watermark.style.fontSize = '12px';
-    watermark.style.fontWeight = '800';
-    watermark.style.color = 'rgba(255,255,255,0.4)';
+    watermark.style.cssText = "position:absolute; bottom:12px; right:20px; font-size:12px; font-weight:800; color:rgba(255,255,255,0.4); text-transform:uppercase; z-index:9999;";
     watermark.innerHTML = 'by <span style="color:#0AD1A6">RATHOD TRADER</span>';
     
-    if(element === document.body) {
-       document.body.appendChild(watermark);
-    } else {
-       element.style.position = 'relative';
-       element.appendChild(watermark);
-    }
+    element.style.position = 'relative';
+    element.appendChild(watermark);
 
-    const canvas = await html2canvas(element, { backgroundColor: '#000000', scale: 2 });
+    const canvas = await html2canvas(element, { 
+        backgroundColor: '#000000', 
+        scale: 2,
+        logging: false,
+        useCORS: true 
+    });
+
+    // FILE NAME FIX: Yahan 'mr_chartist' hatakar 'RATHOD_TRADER' kar diya hai
     const link = document.createElement('a');
-    link.download = `${namePrefix}_${new Date().toISOString().split('T')[0]}.png`;
-    link.href = canvas.toDataURL();
+    link.download = `RATHOD_TRADER_${namePrefix}_${new Date().toISOString().split('T')[0]}.png`;
+    link.href = canvas.toDataURL("image/png");
     link.click();
-    watermark.remove();
-  } catch (err) { console.error(err); }
-}
 
+    // Cleanup
+    watermark.remove();
+    btns.forEach(b => b.style.opacity = '1');
+  } catch (err) { 
+    console.error("Export Error:", err); 
+  }
+}
 function switchMainTab(id) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
